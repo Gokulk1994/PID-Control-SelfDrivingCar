@@ -1,6 +1,12 @@
 #ifndef PID_H
 #define PID_H
 
+#include <vector>
+#include <string>
+
+using std::vector;
+using std::string;
+
 class PID {
  public:
   /**
@@ -30,6 +36,13 @@ class PID {
    * @output The total PID error
    */
   double TotalError();
+  
+  /**
+  * Calculate the best gain values Kp, Kd, Ki using Twiddle algorithm explained in class
+  * @output : No return; Updates the dp (delta in gain) parameters
+  */
+  
+  void Twiddle(double cte);
 
  private:
   /**
@@ -45,6 +58,15 @@ class PID {
   double Kp;
   double Ki;
   double Kd;
+  
+  
+  vector<double> dp;
+  vector<double> Gain_K;
+  double tolerance;
+  double best_err;
+  int state;
+  int twiddle_count;
+  
 };
 
 #endif  // PID_H

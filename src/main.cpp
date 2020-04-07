@@ -38,7 +38,8 @@ int main() {
    * TODO: Initialize the pid variable.
    */
   
-  pid.Init(0.0, 0.0, 0.0);
+  //pid.Init(0.01, 0.01, 0.01);
+  pid.Init(0,0,0);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, 
                      uWS::OpCode opCode) {
@@ -67,8 +68,10 @@ int main() {
            *   Maybe use another PID controller to control the speed!
            */
           
-          pid.Twiddle(cte);
+          
+          
           pid.UpdateError(cte);          
+          pid.Twiddle(cte);
           steer_value = pid.TotalError(); // factored by -1.0 inside Totalerror function
           
           // DEBUG

@@ -55,17 +55,15 @@ class PID {
   /**
    * PID Coefficients
    */ 
-  double Kp;
-  double Ki;
-  double Kd;
+  vector<double> dp;  // delta values for Kp,Kd,Ki
+  vector<double> Gain_K;  // Kp, Kd, Ki
   
-  
-  vector<double> dp;
-  vector<double> Gain_K;
-  double tolerance;
-  double best_err;
-  int state;
-  int twiddle_count;
+  double tolerance; // error tolerance during twiddle
+  double best_err;   // Store optimal error value 
+  int state;         // current state of twiddle
+  int twiddle_count; // iteration of twiddle algorithm
+  int param_index;   // index for gain parameters
+  bool Twiddle_status; // twiddle enabled or not
   
 };
 

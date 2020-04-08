@@ -1,98 +1,149 @@
-# CarND-Controls-PID
-Self-Driving Car Engineer Nanodegree Program
+# PID Control Project - Reflection
 
----
+## Udacity Self Driving Car Nanodegree
 
-## Dependencies
+## Goals
 
-* cmake >= 3.5
- * All OSes: [click here for installation instructions](https://cmake.org/install/)
-* make >= 4.1(mac, linux), 3.81(Windows)
-  * Linux: make is installed by default on most Linux distros
-  * Mac: [install Xcode command line tools to get make](https://developer.apple.com/xcode/features/)
-  * Windows: [Click here for installation instructions](http://gnuwin32.sourceforge.net/packages/make.htm)
-* gcc/g++ >= 5.4
-  * Linux: gcc / g++ is installed by default on most Linux distros
-  * Mac: same deal as make - [install Xcode command line tools]((https://developer.apple.com/xcode/features/)
-  * Windows: recommend using [MinGW](http://www.mingw.org/)
-* [uWebSockets](https://github.com/uWebSockets/uWebSockets)
-  * Run either `./install-mac.sh` or `./install-ubuntu.sh`.
-  * If you install from source, checkout to commit `e94b6e1`, i.e.
-    ```
-    git clone https://github.com/uWebSockets/uWebSockets 
-    cd uWebSockets
-    git checkout e94b6e1
-    ```
-    Some function signatures have changed in v0.14.x. See [this PR](https://github.com/udacity/CarND-MPC-Project/pull/3) for more details.
-* Simulator. You can download these from the [project intro page](https://github.com/udacity/self-driving-car-sim/releases) in the classroom.
+In main goal of this project is to build a PID controller and tune the hyperparameters.
 
-Fellow students have put together a guide to Windows set-up for the project [here](https://s3-us-west-1.amazonaws.com/udacity-selfdrivingcar/files/Kidnapped_Vehicle_Windows_Setup.pdf) if the environment you have set up for the Sensor Fusion projects does not work for this project. There's also an experimental patch for windows in this [PR](https://github.com/udacity/CarND-PID-Control-Project/pull/3).
+## Constraints:
 
-## Basic Build Instructions
+1. No tire may leave the drivable portion of the track surface.
+2. Always ensure a safe driving route from source to destination.
+3. Tune the gains of PID controller using Optimization techniques after random
+    initialization.
 
-1. Clone this repo.
-2. Make a build directory: `mkdir build && cd build`
-3. Compile: `cmake .. && make`
-4. Run it: `./pid`. 
+## Inputs:
 
-Tips for setting up your environment can be found [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
+- Cross track error
+- Speed of vehicle
+- Steering angle
 
-## Editor Settings
+## Implementation Details:
 
-We've purposefully kept editor configuration files out of this repo in order to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+- **Init** () - Initialize default values to all the parameters.
+- **UpdateError** () : Updates the error during each cycle and Activates twiddle algorithm
+    to find optimal gain values.
+- **Twiddle** () : Function to find the optimal gain parameters.
+- **TotalError** () : calculate the total error based on Kp,Kd,Ki and all 3 error values. Total
+    error should be within the range [-1,+1]
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
+## Reflection on Controller Generation and Parameter Tuning:
 
-## Code Style
+## P Controller: Effects of Proportional(P) Term
 
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
+- The work of Proportional P component is to **reduce** the **cross-track error** (cte).
+- It tries to **pull the car** towards its intended steering angle to reduce the error.
+- **Drawbacks** : Due to Physical constraints, the car’s path will experience **oscillations**.
 
-## Project Instructions and Rubric
+This is clearly shown in the video attached video **P_Controller.mp4** attached in the path
+**\CarND-PID-Control-Project\videos\.**
 
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+## PD Controller: Effects of Derivative(D) Term
 
-More information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/f1820894-8322-4bb3-81aa-b26b3c6dcbaf/lessons/e8235395-22dd-4b87-88e0-d108c5e5bbf4/concepts/6a4d8d42-6a04-4aa6-b284-1697c0fd6562)
-for instructions and the project rubric.
+- The work of Derivative D component is to **reduce** the **deviation** between successive
+    errors values, i.e it **reduces the derivative** of the **cross-track error** (cte).
+- **Pull more** when car is in **wrong direction** ( **high derivative** )
 
-## Hints!
 
-* You don't have to follow this directory structure, but if you do, your work
-  will span all of the .cpp files here. Keep an eye out for TODOs.
+- **Pull less** when car is already in **right direction** ( **less derivative** )
+- This helps in **reducing** the car’s **oscillations**.
+- **Drawbacks** : Due to some issues like car wheel alignment, slip angle, high cross winds,
+    the car’s path will experience some **bias (offset),** due to **accumulation of errors over**
+    **time**. Car may fail to travel in exact centre, but might have some offset in the track.
 
-## Call for IDE Profiles Pull Requests
+This is clearly shown in the video attached video **PD_Controller.mp4** attached in the path
+**\CarND-PID-Control-Project\videos** \.
 
-Help your fellow students!
+### PID Controller: Effects of Integral(I) Term
 
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. Similarly, we omitted IDE profiles in order to we ensure
-that students don't feel pressured to use one IDE or another.
+- The work of Integral I component is to **reduce** the accumulation of **cross-track error**
+    over time
+- **Pull more** when the **steady state error** is too high**.**
+- This helps in **reducing** the bias or offset caused by long time accumulation of errors.
+- **Drawbacks** : The Integral part may increase the error during some time interval, but it
+    will get reduced when nearing the steady state of the system.
 
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE that you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
+This is clearly shown in the video attached video **PID_Controller.mp4** attached in the path
+**\CarND-PID-Control-Project\videos\.**
 
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
+### Need for Tuning:
 
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
+As you can see from the implementation, the car’s path purely depends on the values of the
+gain parameters Kp, Ki, Kd. In reality it is not an easy task to find the optimal values for all 3
+parameters.
 
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. My expectation is that most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
+Hence generally the parameters are initialized with some **trial and error** based **reasonable
+random values** (at least car is able to drive in the track). Then use some optimization
+techniques to find the best values for the parameters which reduces total error over time.
 
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
+A simple example of choosing poor random values is shown in **Accident_PID_Controller.mp**
+in the path **\CarND-PID-Control-Project\videos\.**
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+From the video, you can understand that even though random initialization values lead to
+following path for some extent same as shown in **PID_Controller.mp4,** there was a **collision**
+with the road side ledges and car rolls over outside the track. This is of high safety concern
+which demands the need for tuning the parameters.
+
+#### Twiddle Algorithm:
+
+There are many kinds of optimization algorithms for such kind of problems like different
+versions of Gradient Descent, Newton method, Gauss-Newton, Lagrange method and so on.
+As most methods are complex and some needs higher order derivatives, I have implemented
+the Twiddle algorithm which is discussed in classroom.
+
+
+This is a simple algorithm, which works as explained below.
+
+- Increase each gain parameters with some delta values.
+- If the error gets reduced, increase the delta value by a factor > 1.0 (1.1 is used in code).
+- If increasing does not work, decrease the gain and do the same process.
+- If both increasing / decreasing does not work, reduce delta by a factor < 1.0 (0.9 is
+    used).
+- During twiddle updation, the car may experience oscillations and other problems due
+    to change in gain parameters in each cycle, which lasts only until it reaches the optimal
+    values.
+- The behaviour during updation can be seen in the video **During_Twiddle_Update.mp**
+    added in the path **\CarND-PID-Control-Project\videos\.**
+
+The tuning is done with a random initial value and it converges after around 500 iterations.
+
+**The optimal tuning values prevents collision with the barriers and make the Car to stay in
+the track.**
+
+This can be seen in the video **Accident_Prevented_With_Twiddled_Values.mp4** in the path
+**\CarND-PID-Control-Project\videos\.**
+
+### Result :
+
+The Car is able to travel safely inside the track without any collisions or roll over.
+
+Values used while capturing videos and execution of the code is given in the below table.
+
+```
+Controller Kp Ki Kd
+```
+```
+P controller 1.0 0 .0 0.
+```
+```
+PD controller 0. 1 0.0 1.
+```
+```
+PID Controller without Tuning 0.04 0.00005 0.
+```
+```
+PID Controller + Twiddle Tuning 0.18631 0.000259837 3.
+```
+## Future Works :
+
+- As we very well know that all optimization methods listed are only **Local optimization**
+    methods. The optimal values mainly depend on the **Initialization**.
+- **Global optimization methods** like simulated annealing or Black box based global
+    optimization techniques can be used to get the Best gain parameters.
+- Also, as you witness that the car may experience some oscillations during big turns,
+    which is due to the fact that **speed parameter is not tuned** here. Turning with high
+    speeds, causes car to move away from intended path. Other reasons being the
+    **initialization of parameters** and other **physical constraints**.
+
 

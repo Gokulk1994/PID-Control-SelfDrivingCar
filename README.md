@@ -120,21 +120,13 @@ The Car is able to travel safely inside the track without any collisions or roll
 
 Values used while capturing videos and execution of the code is given in the below table.
 
-```
-Controller Kp Ki Kd
-```
-```
-P controller 1.0 0 .0 0.
-```
-```
-PD controller 0. 1 0.0 1.
-```
-```
-PID Controller without Tuning 0.04 0.00005 0.
-```
-```
-PID Controller + Twiddle Tuning 0.18631 0.000259837 3.
-```
+|Controller|Kp|Ki|Kd|
+|---|---|---|---|
+|P controller |1.0 | 0.0 | 0.0 |
+|PD controller |0.1| 0.0 | 1.0|
+|PID Controller without Tuning | 0.04 | 0.00005 | 0.75 |
+|PID Controller + Twiddle Tuning | 0.18631 | 0.000259837 | 3.02721|
+
 ## Future Works :
 
 - As we very well know that all optimization methods listed are only **Local optimization**
